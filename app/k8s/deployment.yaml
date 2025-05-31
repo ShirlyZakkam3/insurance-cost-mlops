@@ -13,7 +13,8 @@ spec:
         app: mlops-app
     spec:
       containers:
-      - name: mlops-app
-        image: __IMAGE_NAME__  
+      - name: mlops-app 
+        image: sathwik2410/insurance-cost-predictor:latest
+
         ports:
         - containerPort: 5000
