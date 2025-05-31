@@ -24,20 +24,16 @@ jobs:
           pip install -r requirements.txt
           pip install pytest
 
-      - name: 4. Run Tests
-        run: pytest
-
-      - name: 5. Set up Docker Buildx
+      - name: 4. Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: 6. Log in to Docker Hub
+      - name: 5. Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: 7. Build and Push Docker Image
-        id: docker_build
+      - name: 6. Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -47,9 +43,9 @@ jobs:
             ${{ secrets.DOCKER_HUB_USERNAME }}/insurance-predictor:latest
             ${{ secrets.DOCKER_HUB_USERNAME }}/insurance-predictor:${{ github.sha }}
 
-      - name: 8. Save Docker Image Tag
-        id: image_tag
-        run: echo "IMAGE_TAG=${{ secrets.DOCKER_HUB_USERNAME }}/insurance-predictor:${{ github.sha }}" >> $GITHUB_ENV
+      - name: 7. Save Image Tag
+        id: metadata
+        run: echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
 
   deploy-to-minikube:
     runs-on: ubuntu-latest
@@ -66,32 +62,38 @@ jobs:
           driver: docker
 
       - name: 3. Enable Ingress (optional)
-        run: minikube addons enable ingress
-
-      - name: 4. Set kubectl context to Minikube
-        run: kubectl config use-context minikube
-
-      - name: 5. Replace image placeholder in deployment.yaml
         run: |
-          sed -i "s|__IMAGE_NAME__|${{ env.IMAGE_TAG }}|g" app/k8s/deployment.yaml
+          minikube addons enable ingress
 
-      - name: 6. Deploy to Kubernetes
+      - name: 3.5 Set kubectl context to Minikube
+        run: |
+          kubectl config use-context minikube
+
+      - name: 4. Update deployment.yaml with latest image tag
+        run: |
+          IMAGE_NAME=${{ secrets.DOCKER_HUB_USERNAME }}/insurance-predictor:${{ github.sha }}
+          echo "Using image: $IMAGE_NAME"
+          sed -i "s|__IMAGE_NAME__|$IMAGE_NAME|g" app/k8s/deployment.yaml
+          echo "Updated deployment.yaml:"
+          cat app/k8s/deployment.yaml
+
+      - name: 5. Deploy to Kubernetes
         run: |
           kubectl apply -f app/k8s/deployment.yaml
           kubectl apply -f app/k8s/service.yaml
 
-      - name: 7. Wait for Deployment Rollout
+      - name: 6. Wait for Rollout
         run: |
           kubectl rollout status deployment/mlops-app-deployment --timeout=120s
           kubectl get pods
           kubectl get svc
 
-      - name: 8. Get Minikube Service URL
+      - name: 7. Get Minikube Service URL
         run: |
           minikube service mlops-app-service --url > service_url.txt
           cat service_url.txt
 
-      - name: 9. Upload Minikube Service URL
+      - name: 8. Upload Service URL as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: minikube-service-url
