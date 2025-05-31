@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: insurance-api-service
+spec:
+  selector:
+    app: insurance-api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: LoadBalancer
