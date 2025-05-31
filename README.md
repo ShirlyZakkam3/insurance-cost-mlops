@@ -1,37 +1,45 @@
-# Medical Insurance Cost Prediction - MLOps Project
+# Insurance Cost Prediction - MLOps Project
 
-This project is an end-to-end **MLOps pipeline** for predicting medical insurance costs based on user attributes such as age, BMI, region, smoking status, etc. The system includes data preprocessing, model training (Random Forest & Linear Regression), Flask-based API deployment, CI/CD automation with GitHub Actions, Docker containerization, and optional VM/Kubernetes deployment.
+This project predicts **medical insurance costs** based on user attributes such as age, BMI, smoking status, and region. It follows an end-to-end **MLOps workflow** using:
+
+- Machine Learning: `RandomForestRegressor`
+- Dockerized Flask API
+- CI/CD with GitHub Actions
+- Kubernetes Deployment (Minikube)
+- Model Retraining Pipeline
 
 ---
 
 ## Features
 
-- Machine learning model (Random Forest Regressor)
-- Flask web API with HTML frontend
-- Retraining pipeline (`retrain.py`) with Linear Regression
-- Docker containerization
-- CI/CD via GitHub Actions
-- Deployment-ready for Google VM, Docker, or Kubernetes
+- ML model to predict insurance charges
+- REST API with Flask
+- Dockerized application
+- CI/CD GitHub Actions to:
+  - Build & push image to DockerHub
+  - Deploy to Minikube cluster
+  - Retrain model on new data
 
 ---
 
-## Project Components
+## ML Model Info
 
-- `train.py`: Trains a Random Forest Regressor and saves the model
-- `retrain.py`: Retrains using Linear Regression for fallback/update
-- `main.py`: Flask app exposing web UI and API
-- `test_app.py`: Unit tests for the Flask API
-- `requirements.txt`: Project dependencies
-- `.github/workflows/`: CI, CD, and retrain GitHub Actions
-- `Dockerfile`: Container definition for building and deploying the app
+- Algorithm: `RandomForestRegressor` from `scikit-learn`
+- Trained on: `medical_insurance.csv`
+- Inputs:
+  - Age
+  - Sex
+  - BMI
+  - Children
+  - Smoker
+  - Region
+- Output:
+  - Insurance Charges (`charges`)
 
 ---
 
-## How to Run
+## Docker Setup
 
-### Option 1: Run Locally
-
+###  Build Image
 ```bash
-pip install -r requirements.txt
-python app/train.py
-python app/main.py
+docker build -t insurance-cost-app .
