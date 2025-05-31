@@ -47,7 +47,6 @@ jobs:
         id: metadata
         run: echo "tag=${{ github.sha }}" >> $GITHUB_OUTPUT
 
-
   deploy-to-minikube:
     runs-on: ubuntu-latest
     name: Deploy to Minikube
@@ -62,9 +61,13 @@ jobs:
         with:
           driver: docker
 
-      - name: 3. Enable Ingress (optional but useful)
+      - name: 3. Enable Ingress (optional)
         run: |
           minikube addons enable ingress
+
+      - name: 3.5 Set kubectl context to Minikube
+        run: |
+          kubectl config use-context minikube
 
       - name: 4. Update deployment.yaml with latest image tag
         run: |
@@ -81,3 +84,6 @@ jobs:
           kubectl get pods
           kubectl get svc
 
+      - name: 7. Output Minikube service URL
+        run: |
+          minikube service mlops-app-service --url
