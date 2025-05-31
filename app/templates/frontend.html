@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Insurance Cost Predictor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #result {
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Insurance Cost Predictor</h2>
+        <form id="predict-form">
+            <label>Age:</label>
+            <input type="number" name="age" required>
+
+            <label>Sex:</label>
+            <select name="sex" required>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+
+            <label>BMI:</label>
+            <input type="number" step="0.1" name="bmi" required>
+
+            <label>Children:</label>
+            <input type="number" name="children" required>
+
+            <label>Smoker:</label>
+            <select name="smoker" required>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+
+            <label>Region:</label>
+            <select name="region" required>
+                <option value="northeast">Northeast</option>
+                <option value="northwest">Northwest</option>
+                <option value="southeast">Southeast</option>
+                <option value="southwest">Southwest</option>
+            </select>
+
+            <button type="submit">Predict</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById("predict-form").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const form = e.target;
+            const resultDiv = document.getElementById("result");
+            resultDiv.textContent = "Predicting...";
+
+            const data = {
+                age: parseInt(form.age.value),
+                sex: form.sex.value,
+                bmi: parseFloat(form.bmi.value),
+                children: parseInt(form.children.value),
+                smoker: form.smoker.value,
+                region: form.region.value
+            };
+
+            try {
+                const response = await fetch("/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    resultDiv.textContent = "Estimated Cost: $" + result.predicted_cost.toFixed(2);
+                } else {
+                    resultDiv.textContent = "Error: " + (result.error || "Unexpected issue.");
+                }
+            } catch (error) {
+                resultDiv.textContent = "Error: Could not connect to server.";
+            }
+        });
+    </script>
+</body>
+</html>
