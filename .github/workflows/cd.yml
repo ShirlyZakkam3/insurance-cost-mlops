@@ -84,6 +84,14 @@ jobs:
           kubectl get pods
           kubectl get svc
 
-      - name: 7. Output Minikube service URL
+      - name: 7. Get Minikube Service URL
         run: |
-          minikube service mlops-app-service --url
+          minikube service mlops-app-service --url > service_url.txt
+          cat service_url.txt
+
+      - name: 8. Upload Service URL as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: minikube-service-url
+          path: service_url.txt
+
