@@ -7,7 +7,6 @@ import os
 app = Flask(__name__, template_folder="templates")
 CORS(app)
 
-# Load the trained pipeline
 model_path = os.path.join(os.path.dirname(__file__), 'insurance_model.pkl')
 model = joblib.load(model_path)
 
