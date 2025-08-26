@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: mlops-app-service
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: mlops-app
   ports:
